@@ -1,0 +1,223 @@
+---
+title: "jobs_data"
+author: "xingyuli"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+
+```{r setup, include=FALSE}
+library(mediation)
+library(MatchIt)
+library(cobalt)
+library(randomForest)
+library(randomForestSRC)
+data = jobs
+```
+
+
+```{r}
+colnames(data)
+```
+
+## treat 是treat
+## Mediator 是job_seek
+## Outcome 是depress2, huanliu's paper
+## Covariates：econ_hard,educ,sex,income,nonwhite,comply,work1,marital,
+
+```{r}
+data = rio::import("/Users/xli36/Downloads/R_packages/myproject/jobs_v2.csv")
+colnames(data)
+data$occp = as.factor(data$occp)
+data$educ = as.factor(data$educ) 
+data$education = as.factor(data$education)
+data$educationA = as.factor(data$educationA)
+data$educationB = as.factor(data$educationB)
+data$sex = as.factor(data$sex)
+data0 = data[data$treat==0,]
+data1 = data[data$treat==1,]
+```
+
+```{r}
+fit0 = rfsrc(depress~occp+econ_hard+sex+age+education, data = data0, ntree = 2000, var.used = "all.trees")
+```
+
+```{r}
+fit1 = rfsrc(depress~occp+econ_hard+sex+age+education, data = data1, ntree = 2000, var.used = "all.trees")
+```
+
+
+```{r}
+pred_0 = predict(fit0, newdata=data)
+pred_0 = pred_0$predicted
+
+pred_1 = predict(fit1, newdata=data)
+pred_1 = pred_1$predicted
+```
+
+```{r}
+data$trt_effect = pred_1 - pred_0
+```
+
+
+```{r}
+n=899
+dis3 = as.data.frame(matrix(rep(0,n*n),nrow = n))
+  for (i in 1:n){
+    dis3[i,] = rep(as.numeric(data[i,"trt_effect"]),n) - as.numeric(data$trt_effect)
+  }
+  dis3 = (dis3)**2
+  tsne_result = Rtsne::Rtsne(dis3,dims=2,is_distance=TRUE,verbose=FALSE,max_iter = 4000, theta = 0)
+  
+  kmeans_result_2 = kmeans(tsne_result$Y, centers = 2, iter.max = 50, nstart = 10)
+  kmeans_result_3 = kmeans(tsne_result$Y, centers = 3, iter.max = 50, nstart = 10)
+  kmeans_result_4 = kmeans(tsne_result$Y, centers = 4, iter.max = 50, nstart = 10)
+  kmeans_result_5 = kmeans(tsne_result$Y, centers = 5, iter.max = 50, nstart = 10)
+  #kmeans_result_6 = kmeans(tsne_result$Y, centers = 6, iter.max = 50, nstart = 10)
+  
+  data$kmeans2 = as.factor(kmeans_result_2$cluster)
+  data$kmeans3 = as.factor(kmeans_result_3$cluster)
+  data$kmeans4 = as.factor(kmeans_result_4$cluster)
+  data$kmeans5 = as.factor(kmeans_result_5$cluster)
+```
+
+
+## No mediator
+```{r}
+  pval_flag_M = 1
+  pval_flag_Y = 1
+  data_flag = NULL
+  result = list()
+  for (j in 2:4){
+    x_name = c("econ_hard","sex","age","occp","education")  #paste0("Cov",1:10)econ_hard+educ+sex+income+nonwhite+work1+marital+comply+age
+    c_name = paste0("kmeans",j)  #"kmeans3"
+    profiles <- tree_fit(Y=data[,c_name], X=data[,x_name], seed=1234)
+    length(profiles$trees)
+    plot_profile(profiles$trees[[1]])
+    if(length(profiles$trees)>0){
+      
+      for(k in 1:length(profiles$trees)){
+        data_tmp = predict_path(profiles$trees[[1]], newdata = data)
+        fit_lm1 = lm(depress2~leaf+treat+leaf*treat, data = data_tmp)
+        fit_lm0 = lm(depress2~leaf+treat, data = data_tmp)
+        pval <- as.numeric(na.omit(stats::anova(fit_lm0, fit_lm1, test = "LRT")[[5]]))
+        if(pval<pval_flag_Y){
+          pval_flag_Y = pval
+          #data_flag = data_tmp
+          n_cluster_Y = j
+          profile_index_Y = k
+          profiles_save_Y = profiles
+        }
+      }
+    }
+    #plot_profile(profiles$trees[[1]])
+    
+  }
+```
+
+
+
+```{r}
+plot_profile(profiles_save_Y$trees[[profile_index_Y]])
+```
+
+```{r}
+data_rf_nomediator$leaf
+
+```
+
+
+```{r}
+data_rf_nomediator = predict_path(profiles_save_Y$trees[[profile_index_Y]], newdata = data)
+```
+
+
+```{r}
+data_rf_nomediator$occupation = rep("A",899)
+for(i in 1:899){
+  if(data_rf_nomediator[i,"occp"]%in%c("clerical/kindred")){
+    data_rf_nomediator[i,"occupation"] = "A"
+  }
+  if(data_rf_nomediator[i,"occp"]%in%c("laborers/service wrks")){
+    data_rf_nomediator[i,"occupation"] = "B"
+  }
+  if(data_rf_nomediator[i,"occp"]%in%c("operatives/kindred wrks")){
+    data_rf_nomediator[i,"occupation"] = "C"
+  }
+  if(data_rf_nomediator[i,"occp"]%in%c("sales workers")){
+    data_rf_nomediator[i,"occupation"] = "D"
+  }
+  if(data_rf_nomediator[i,"occp"]%in%c("craftsmen/foremen/kindred")){
+    data_rf_nomediator[i,"occupation"] = "E"
+  }
+  if(data_rf_nomediator[i,"occp"]%in%c("manegerial")){
+    data_rf_nomediator[i,"occupation"] = "F"
+  }
+  if(data_rf_nomediator[i,"occp"]%in%c("professionals")){
+    data_rf_nomediator[i,"occupation"] = "G"
+  }
+}
+data_rf_nomediator$occupation = as.factor(data_rf_nomediator$occupation)
+
+```
+
+
+```{r}
+
+data_rf_nomediator$subtype = rep("0",899)
+for( i in 1:899){
+  if(data_rf_nomediator[i,"leaf"]=="3"){
+    data_rf_nomediator[i,"subtype"] = "Subtype1"
+  }
+    if(data_rf_nomediator[i,"leaf"]=="4"){
+    data_rf_nomediator[i,"subtype"] = "Subtype2"
+    }
+    if(data_rf_nomediator[i,"leaf"]=="6"){
+    data_rf_nomediator[i,"subtype"] = "Subtype3"
+    }
+    if(data_rf_nomediator[i,"leaf"]=="7"){
+    data_rf_nomediator[i,"subtype"] = "Subtype4"
+  }
+}
+data_rf_nomediator$subtype = as.factor(data_rf_nomediator$subtype)
+```
+
+
+```{r}
+x_name = c("occupation","econ_hard","education","sex","age")
+    c_name = "subtype" #paste0("kmeans",j)  #"kmeans3"
+    profiles <- tree_fit(Y=data_rf_nomediator[,c_name], X=data_rf_nomediator[,x_name], seed=1234)
+```
+
+
+```{r}
+x_name = c("econ_hard","sex","age","occp","education")  #paste0("Cov",1:10)econ_hard+educ+sex+income+nonwhite+work1+marital+comply+age
+    c_name = "leaf"##paste0("kmeans",j)  #"kmeans3"
+    profiles <- tree_fit(Y=data_rf_nomediator_education[,c_name], X=data_rf_nomediator_education[,x_name], seed=1234)
+```
+
+
+
+```{r}
+plot_profile(profiles$trees[[1]])
+```
+
+```{r}
+library(mediation)
+data_tmp = data_rf_nomediator[data_rf_nomediator$subtype=="Subtype4",]
+# 中介模型：T -> job_seek
+mediator_model <- lm(job_seek ~ treat , data = data_tmp)
+
+# 结果模型：T + job_seek -> depress2
+outcome_model <- lm(depress2 ~ treat + job_seek, data = data_tmp)
+
+# 进行中介分析
+mediation_result <- mediate(mediator_model, outcome_model, treat = "treat", mediator = "job_seek", boot = TRUE, sims = 1000)
+
+# 查看结果
+summary(mediation_result)
+```
+
+```{r}
+matchit(treat~econ_hard+depress1+sex+age+occp+marital+nonwite+educ+job_seek+depress2+work1+comply+control+job_dich+job_disc)
+```
