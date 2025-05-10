@@ -1,6 +1,6 @@
 ---
 title: "jobs_data"
-author: "xingyuli"
+author: ""
 date: "`r Sys.Date()`"
 output: word_document
 ---
@@ -8,8 +8,6 @@ output: word_document
 
 ```{r setup, include=FALSE}
 library(mediation)
-library(MatchIt)
-library(cobalt)
 library(randomForest)
 library(randomForestSRC)
 data = jobs
@@ -20,13 +18,13 @@ data = jobs
 colnames(data)
 ```
 
-## treat 是treat
-## Mediator 是job_seek
-## Outcome 是depress2, huanliu's paper
+## treat :treat
+## Mediator :job_seek
+## Outcome 
 ## Covariates：econ_hard,educ,sex,income,nonwhite,comply,work1,marital,
 
 ```{r}
-data = rio::import("/Users/xli36/Downloads/R_packages/myproject/jobs_v2.csv")
+data = rio::import("jobs_v2.csv")
 colnames(data)
 data$occp = as.factor(data$occp)
 data$educ = as.factor(data$educ) 
@@ -73,7 +71,6 @@ dis3 = as.data.frame(matrix(rep(0,n*n),nrow = n))
   kmeans_result_3 = kmeans(tsne_result$Y, centers = 3, iter.max = 50, nstart = 10)
   kmeans_result_4 = kmeans(tsne_result$Y, centers = 4, iter.max = 50, nstart = 10)
   kmeans_result_5 = kmeans(tsne_result$Y, centers = 5, iter.max = 50, nstart = 10)
-  #kmeans_result_6 = kmeans(tsne_result$Y, centers = 6, iter.max = 50, nstart = 10)
   
   data$kmeans2 = as.factor(kmeans_result_2$cluster)
   data$kmeans3 = as.factor(kmeans_result_3$cluster)
@@ -90,7 +87,7 @@ dis3 = as.data.frame(matrix(rep(0,n*n),nrow = n))
   result = list()
   for (j in 2:4){
     x_name = c("econ_hard","sex","age","occp","education")  #paste0("Cov",1:10)econ_hard+educ+sex+income+nonwhite+work1+marital+comply+age
-    c_name = paste0("kmeans",j)  #"kmeans3"
+    c_name = paste0("kmeans",j)  
     profiles <- tree_fit(Y=data[,c_name], X=data[,x_name], seed=1234)
     length(profiles$trees)
     plot_profile(profiles$trees[[1]])
@@ -110,7 +107,6 @@ dis3 = as.data.frame(matrix(rep(0,n*n),nrow = n))
         }
       }
     }
-    #plot_profile(profiles$trees[[1]])
     
   }
 ```
@@ -205,19 +201,17 @@ plot_profile(profiles$trees[[1]])
 ```{r}
 library(mediation)
 data_tmp = data_rf_nomediator[data_rf_nomediator$subtype=="Subtype4",]
-# 中介模型：T -> job_seek
+# T -> job_seek
 mediator_model <- lm(job_seek ~ treat , data = data_tmp)
 
-# 结果模型：T + job_seek -> depress2
+# T + job_seek -> depress2
 outcome_model <- lm(depress2 ~ treat + job_seek, data = data_tmp)
 
-# 进行中介分析
+# 
 mediation_result <- mediate(mediator_model, outcome_model, treat = "treat", mediator = "job_seek", boot = TRUE, sims = 1000)
 
-# 查看结果
+# outcome
 summary(mediation_result)
 ```
 
-```{r}
-matchit(treat~econ_hard+depress1+sex+age+occp+marital+nonwite+educ+job_seek+depress2+work1+comply+control+job_dich+job_disc)
-```
+
