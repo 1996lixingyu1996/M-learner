@@ -1,4 +1,4 @@
-##### Experiment 4 new ######
+##### Experiment 6 new ######
 ## Mediator Model
 ##### Indirect experiment ########
 
@@ -57,7 +57,7 @@ f_exp1 <- function(seed){
   #lm_heter = glm(M~TRT, data = data_heter, family = binomial)
   #summary(lm_heter)
   
-  data_save_path = paste0("/Users/xli36/Downloads/R_packages/myproject/expe4_new/seed_",seed,".csv")
+  data_save_path = paste0("path/seed_",seed,".csv")
   rio::export(data, data_save_path)
   
   data0 = data[data$TRT==0,]
@@ -152,7 +152,7 @@ f_exp1 <- function(seed){
     
   }
   
-  save_path = paste0("/Users/xli36/Downloads/R_packages/myproject/expe4_new/seed_",seed,".rds")
+  save_path = paste0("path/seed_",seed,".rds")
   result[[1]] = pval_flag_M
   result[[2]] = n_cluster_M
   result[[3]] = profile_index_M#data_flag
@@ -165,13 +165,12 @@ f_exp1 <- function(seed){
   rio::export(result, save_path)
 }
 
-#data = rio::import(paste0("/Users/xli36/Downloads/R_packages/myproject/expe1/seed_",1,".rds"))
 library(Rtsne)
 library(rio)
 library(snowfall)
 library(parallel)
 
-my_new_folder = "/Users/xli36/Downloads/R_packages/myproject/expe4_new"
+my_new_folder = "path"
 if (!dir.exists("my_new_folder")) {
   dir.create("my_new_folder")
 }
@@ -183,7 +182,7 @@ sfLibrary(rpart)
 sfLibrary(randomForestSRC)
 sfLibrary(base)
 sfLibrary(Rtsne)
-sfSource("/Users/xli36/Desktop/rf_test/tree_fit_part.R")
+sfSource("tree_fit_part.R")
 
 result_vector = sfLapply(1:100, f_exp1)
 
