@@ -134,9 +134,9 @@ f_exp1 <- function(seed){
     
   }
   
-  data_save_path = paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_nomediator/seed_",seed,".csv")
+  data_save_path = paste0("/seed_",seed,".csv")
   rio::export(data, data_save_path)
-  save_path = paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_nomediator/seed_",seed,".rds")
+  save_path = paste0("/seed_",seed,".rds")
   result[[1]] = MSE
   result[[2]] = MAE
   result[[3]] = data_flag
@@ -148,7 +148,7 @@ f_exp1 <- function(seed){
   rio::export(result, save_path)
 }
 
-#data = rio::import(paste0("/Users/xli36/Downloads/R_packages/myproject/expe1/seed_",1,".rds"))
+
 library(Rtsne)
 library(rio)
 library(snowfall)
@@ -161,7 +161,7 @@ sfLibrary(rpart)
 sfLibrary(randomForestSRC)
 sfLibrary(base)
 sfLibrary(Rtsne)
-sfSource("/Users/xli36/Desktop/rf_test/tree_fit_part.R")
+sfSource("tree_fit_part.R")
 
 result_vector = sfLapply(1:100, f_exp1)
 
