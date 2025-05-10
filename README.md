@@ -3,12 +3,14 @@
 ## Requirements
 To install requirements
 ```setup
-install("randomForestSRC")
-install("xgboost")
-install("rpart")
-install("tidyverse")
-install("mediation")
-install("latex2exp")
+install.packages("randomForestSRC")
+install.packages("xgboost")
+install.packages("rpart")
+install.packages("tidyverse")
+install.packages("mediation")
+install.packages("latex2exp")
+install.packages("rio")
+install.packages("tsne")
 ```
 ## Simulations
 
