@@ -16,3 +16,5 @@ install.packages("tsne")
 
 
 ## Real Data Analysis
+
+We analyzed the heterogeneous indirect treatment effect using the Jobs II data, which can be downloaded from R package mediation. 
