@@ -1,4 +1,4 @@
-##### Experiment 6 XGBoost######
+##### Experiment 3 XGBoost Complex-all######
 ## Mediator Model
 ##### Indirect experiment ########
 library(xgboost)
@@ -6,7 +6,7 @@ f_exp1 <- function(seed){
   n= 1000
   set.seed(seed)
   
-  data_save_path = paste0("/Users/xli36/Downloads/R_packages/myproject/expe6_new/seed_",seed,".csv")
+  data_save_path = paste0("path/seed_",seed,".csv")
   data = rio::import(data_save_path)
   
   data0 = data[data$TRT==0,]
@@ -143,7 +143,7 @@ f_exp1 <- function(seed){
     
   }
   
-  save_path = paste0("/Users/xli36/Downloads/R_packages/myproject/expe6_new/seed_xgb_",seed,".rds")
+  save_path = paste0("path",seed,".rds")
   result[[1]] = pval_flag_M
   result[[2]] = n_cluster_M
   result[[3]] = profile_index_M#data_flag
@@ -162,7 +162,7 @@ library(rio)
 library(snowfall)
 library(parallel)
 
-my_new_folder = "/Users/xli36/Downloads/R_packages/myproject/expe6_new"
+my_new_folder = "path"
 if (!dir.exists("my_new_folder")) {
   dir.create("my_new_folder")
 }
@@ -174,7 +174,7 @@ sfLibrary(rpart)
 sfLibrary(xgboost)
 sfLibrary(base)
 sfLibrary(Rtsne)
-sfSource("/Users/xli36/Desktop/rf_test/tree_fit_part.R")
+sfSource("tree_fit_part.R")
 
 result_vector = sfLapply(1:100, f_exp1)
 
