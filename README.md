@@ -21,4 +21,4 @@ The detailed usage can be found in simulation.md in Realdataanalysis folder.
 
 We analyzed the heterogeneous indirect treatment effect using the Jobs II data, which can be downloaded from R package mediation. "We provide the processed data file jobs_v2.csv in the Realdataanalysis folder. For details, see jobs.Rmd.
 
-And We will provide python version in the future.
+And we will provide python version in the future.
