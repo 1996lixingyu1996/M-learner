@@ -28,8 +28,6 @@ for (seed in 1:100){
   df_trt[,seed] = pred_Y_trt_1 - pred_Y_trt_0
 }
 
-    #rio::export(df_trt, paste0("/Users/xli36/Downloads/R_packages/myproject/expe2_nomediator/trt_effect",".csv")) # outp
-
 
 data_new$trt_effect = rowMeans(df_trt)
 
