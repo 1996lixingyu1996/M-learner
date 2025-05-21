@@ -58,15 +58,12 @@ data_new$W = W
 data_new = data.frame(X)
 colnames(data_new) = paste0("Cov",1:10)
 
-rio::export(data_new, paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_new/vis",".csv"))
-#data_new = rio::import("/Users/xli36/Downloads/R_packages/myproject/expe1_nomediator/vis.csv")
-#df_trt = data.frame(matrix(rnorm(3721 * 100), 3721, 100))
 df_trt = data.frame(matrix(rnorm(3721 * 100), 3721, 100))
 for (seed in 1:100){
   
-  data_save_path = paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_new/seed_",seed,".csv")
+  data_save_path = paste0("/seed_",seed,".csv")  # original data path (generated in the first stage)
   data = rio::import(data_save_path)
-  #data = rio::import(paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_nomediator/seed_",seed,".csv"))
+ 
   data0 = data[data$TRT==0,]
   data1 = data[data$TRT==1,]
   
@@ -138,7 +135,6 @@ for (seed in 1:100){
   df_trt[,seed] = indir_trt_effect
 }
 
-rio::export(df_trt, paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_new/trt_effect_xgb",".csv"))
 
 
 data_new$trt_effect = rowMeans(df_trt)
