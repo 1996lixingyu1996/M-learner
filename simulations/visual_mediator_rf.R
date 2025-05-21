@@ -1,4 +1,4 @@
-####### Visualize RF mediator scenario1 ##########
+####### Visualize RF mediator ##########
 library(randomForestSRC)
 library(tidyverse)
 library(rio)
@@ -7,9 +7,7 @@ library(xgboost)
 
 n = 3721
 p=10
-#Y = rep(0,n)
-#Y_CT = rep(0,n)
-#M_CT = rep(0,n)
+
 X1 = seq(-1.5,1.5,0.05)
 X2 = seq(-1.5,1.5,0.05)
 X_12 = expand.grid(X1,X2)
@@ -21,13 +19,11 @@ X[,2]=X_12[,2]
 W0 = c(rep(1,1861),rep(0,1860))
 W <- sample(W0,n,replace = FALSE)
 
-## heterogeneity 1 #####
-
 M = rep(0,n)
 Y = rep(0,n)
-#Y_CT = rep(0,n)
-#M_CT = rep(0,n)
 
+## replace the mediator data in first stage 
+## start
 indi = rep(0,n)
 for (i in 1:n){
   if(X[i,1]>0&X[i,2]>0){
@@ -39,31 +35,27 @@ for (i in 1:n){
   }else{
     M[i] = rnorm(1,0,0.01)+1*X[i,3] + 1*X[i,4] +0.5*X[i,1]+0.5*X[i,2] 
     #M_CT[i] = M[i]
-    #p <- 1 / (1 + exp(-logit_p))
-    #M[i] = round(p)
+
   }
   Y[i] = 1 + 1*M[i] + rnorm(1,0,0.01)+ 0.5*X[i,3] +0.5*X[i,4]
   #Y_CT[i] = Y[i] - 1*M[i] + M_CT[i]
 }
+## end
 
 data_new = as.data.frame(X)
 colnames(data_new) = paste0("Cov",1:10)
 data_new$M = M
 data_new$W = W
-#colnames(data_new) = paste0("Cov",1:10)
 
 data_new = data.frame(X)
 colnames(data_new) = paste0("Cov",1:10)
 
-rio::export(data_new, paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_new/vis",".csv"))
-#data_new = rio::import("/Users/xli36/Downloads/R_packages/myproject/expe1_nomediator/vis.csv")
-#df_trt = data.frame(matrix(rnorm(3721 * 100), 3721, 100))
 df_trt = data.frame(matrix(rnorm(3721 * 100), 3721, 100))
 for (seed in 1:100){
   
-  data_save_path = paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_new/seed_",seed,".csv")
+  data_save_path = paste0("/seed_",seed,".csv")
   data = rio::import(data_save_path)
-  #data = rio::import(paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_nomediator/seed_",seed,".csv"))
+  
   data0 = data[data$TRT==0,]
   data1 = data[data$TRT==1,]
   
@@ -72,8 +64,6 @@ for (seed in 1:100){
   fit_M_0 = rfsrc(M~Cov1+Cov2+Cov3+Cov4+Cov5+Cov6+Cov7+Cov8+Cov9+Cov10, 
                   data = data0, ntree = 2000, var.used = "all.trees")
   
-  ## 
-  #lm_1 = lm(Y~Cov1+Cov2+Cov3+Cov4+Cov5+Cov6+Cov7+Cov8+Cov9+Cov10+M,data = data1)
   rf_y_1 = rfsrc(Y~Cov1+Cov2+Cov3+Cov4+Cov5+Cov6+Cov7+Cov8+Cov9+Cov10+M,data = data1, ntree = 2000, var.used = "all.trees")
   
   df_pred_M_trt_1 = predict(object=fit_M_1, newdata = data_new)
@@ -93,8 +83,6 @@ for (seed in 1:100){
   
   df_trt[,seed] = indir_trt_effect
 }
-#paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_new/seed_",seed,".csv")
-rio::export(df_trt, paste0("/Users/xli36/Downloads/R_packages/myproject/expe1_new/trt_effect",".csv"))
 
 
 data_new$trt_effect = rowMeans(df_trt)
