@@ -1,4 +1,4 @@
-####### Visualize XGB mediator scenario1 ##########
+####### Visualize XGB mediator  ##########
 library(tidyverse)
 library(rio)
 library(akima)
@@ -21,13 +21,14 @@ X[,2]=X_12[,2]
 W0 = c(rep(1,1861),rep(0,1860))
 W <- sample(W0,n,replace = FALSE)
 
-## heterogeneity 1 #####
 
 M = rep(0,n)
 Y = rep(0,n)
 #Y_CT = rep(0,n)
 #M_CT = rep(0,n)
 
+#### replace other xgb scenario's code here.
+#### replacement start
 indi = rep(0,n)
 for (i in 1:n){
   if(X[i,1]>0&X[i,2]>0){
@@ -45,6 +46,8 @@ for (i in 1:n){
   Y[i] = 1 + 1*M[i] + rnorm(1,0,0.01)+ 0.5*X[i,3] +0.5*X[i,4]
   #Y_CT[i] = Y[i] - 1*M[i] + M_CT[i]
 }
+##### replacement end
+
 
 data_new = as.data.frame(X)
 colnames(data_new) = paste0("Cov",1:10)
