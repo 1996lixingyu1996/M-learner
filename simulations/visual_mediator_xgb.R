@@ -7,9 +7,7 @@ library(xgboost)
 set.seed(1)
 n = 3721
 p=10
-#Y = rep(0,n)
-#Y_CT = rep(0,n)
-#M_CT = rep(0,n)
+
 X1 = seq(-1.5,1.5,0.05)
 X2 = seq(-1.5,1.5,0.05)
 X_12 = expand.grid(X1,X2)
@@ -24,8 +22,7 @@ W <- sample(W0,n,replace = FALSE)
 
 M = rep(0,n)
 Y = rep(0,n)
-#Y_CT = rep(0,n)
-#M_CT = rep(0,n)
+
 
 #### replace other xgb scenario's code here.
 #### replacement start
@@ -39,12 +36,8 @@ for (i in 1:n){
     indi[i]  = 1
   }else{
     M[i] = rnorm(1,0,0.01)+1*X[i,3] + 1*X[i,4] +0.5*X[i,1]+0.5*X[i,2] 
-    #M_CT[i] = M[i]
-    #p <- 1 / (1 + exp(-logit_p))
-    #M[i] = round(p)
   }
   Y[i] = 1 + 1*M[i] + rnorm(1,0,0.01)+ 0.5*X[i,3] +0.5*X[i,4]
-  #Y_CT[i] = Y[i] - 1*M[i] + M_CT[i]
 }
 ##### replacement end
 
