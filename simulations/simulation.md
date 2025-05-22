@@ -2,7 +2,7 @@
 
 ## Simulation Part
 
-### No mediators seeting
+### No mediators
 
 In the no mediators setting, we consider four distinct scenarios: Simple (1), Complex (2), Global (3), and Null (4). For each scenario, we run the corresponding script Experiment[1-4]_no_mediator_rf/xgb.R, where the numeral (1–4) denotes the specific scenario. Each script generates 100 selected profiles across 100 replications. To visualize the mediation results, we utilize the visual_no_mediator_rf/xgb.R script.
 
