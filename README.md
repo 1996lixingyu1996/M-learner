@@ -1,4 +1,6 @@
-# M-learner:A Flexible And Powerful Framework To Study Heterogeneous Treatment Effect In Mediation Model https://arxiv.org/abs/2505.17917
+# M-learner:A Flexible And Powerful Framework To Study Heterogeneous Treatment Effect In Mediation Model 
+
+Paper link:https://arxiv.org/abs/2505.17917
 
 ## Requirements
 To install requirements
